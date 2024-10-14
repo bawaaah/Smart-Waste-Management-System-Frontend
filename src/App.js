@@ -1,9 +1,9 @@
-
+import Navi from "./components/Navi";
 
 function App() {
   return (
     <div className="App">
-      <p>Home</p>
+      <Navi />
     </div>
   );
 }
