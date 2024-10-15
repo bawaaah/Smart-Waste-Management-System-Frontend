@@ -1,8 +1,9 @@
 import React from 'react';
 import { FaHome, FaTrash, FaDollarSign, FaGift, FaQuestionCircle } from 'react-icons/fa';
 import logo from '../images/logo.webp';
+import { Link } from "react-router-dom";
 
-function VerticalNav() {
+function Navi() {
   return (
     <div className="h-screen flex">
       {/* Vertical Navigation */}
@@ -20,11 +21,17 @@ function VerticalNav() {
 
           {/* Navigation Items */}
           <nav className="flex flex-col space-y-4 w-full">
-            <NavItem icon={<FaHome />} label="Dashboard" />
+
+            <Link to={"/"}><NavItem icon={<FaHome />} label="Dashboard" /></Link>
+
             <NavItem icon={<FaTrash />} label="Collections" />
-            <NavItem icon={<FaDollarSign />} label="Payments" />
+
+            <Link to={"/PaymentDetails"}><NavItem icon={<FaDollarSign />} label="Payments" /></Link>
+
             <NavItem icon={<FaGift />} label="Rewards" />
+
             <NavItem icon={<FaQuestionCircle />} label="Help" />
+            
           </nav>
         </div>
       </div>
@@ -46,4 +53,4 @@ function NavItem({ icon, label }) {
   );
 }
 
-export default VerticalNav;
+export default Navi;
