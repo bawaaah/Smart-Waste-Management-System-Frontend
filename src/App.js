@@ -1,6 +1,9 @@
 // src/App.js
 import React, { useState } from "react"; // Importing useState
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Importing BrowserRouter
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Dashboard from "./components/sheduleColllection/Dashboard";
 import ScheduleCollection from "./components/sheduleColllection/ScheduleCollection";
 import CollectionDetails from "./components/sheduleColllection/CollectionDetails";
@@ -63,6 +66,7 @@ function App() {
           />
         </Routes>
       </Router>
+      <ToastContainer position="top-right" autoClose={5000} />
     </div>
   );
 }

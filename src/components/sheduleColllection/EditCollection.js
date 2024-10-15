@@ -1,8 +1,26 @@
-// src/components/EditCollection.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import GoogleMapReact from "google-map-react";
+import { toast } from "react-toastify";
+import bullkwaste from "./images/bulkwaste.jpg";
+import ewaste from "./images/electronicwaste.jpg";
+import medicalwaste from "./images/medicalwaste.jpg";
+import organicwaste from "./images/organic.jpg";
+import markerIcon from "./images/marker.png";
+
+const Marker = ({ icon }) => {
+  const markerRef = useRef(null);
+
+  return (
+    <div
+      ref={markerRef}
+      style={{ position: "absolute", transform: "translate(-50%, -100%)" }}
+    >
+      <img src={icon} alt="Marker" style={{ width: "30px", height: "30px" }} />
+    </div>
+  );
+};
 
 const EditCollection = () => {
   const { id } = useParams();
@@ -22,7 +40,7 @@ const EditCollection = () => {
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
-            }, // Include token for authentication
+            },
           }
         );
         setCollection(response.data);
@@ -48,12 +66,30 @@ const EditCollection = () => {
         `http://localhost:5000/api/collections/${id}`,
         updatedCollection,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, // Include token for authentication
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      navigate(`/collection/${id}`); // Navigate back to the collection details after successful update
+      toast.success("Collection updated successfully!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      navigate(`/collection/${id}`);
     } catch (err) {
       console.error("Error updating collection:", err);
+      toast.error("Failed to update collection. Please try again.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
@@ -62,76 +98,110 @@ const EditCollection = () => {
   if (!collection) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h1>Edit Collection</h1>
-      <form onSubmit={handleSubmit}>
-        <div style={{ height: "400px", width: "100%" }}>
+    <div className="min-h-screen bg-green-50 flex justify-center items-center py-10">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md space-y-8 overflow-y-auto"
+      >
+        {/* Google Map */}
+        <div className="relative h-64 md:h-96 bg-gray-200 rounded-lg overflow-hidden w-full">
           <GoogleMapReact
             bootstrapURLKeys={{
-              key: "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM", // Replace with your own Google Maps API key
+              key: "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM",
             }}
             defaultCenter={{ lat: location.lat, lng: location.lng }}
             defaultZoom={11}
             onClick={handleMapClick}
           >
             {location.lat && location.lng && (
-              <div lat={location.lat} lng={location.lng}>
-                <img src="/assets/marker.png" alt="Selected Location" />
-              </div>
+              <Marker lat={location.lat} lng={location.lng} icon={markerIcon} />
             )}
           </GoogleMapReact>
         </div>
-        <p>
-          Selected Location: {location.lat}, {location.lng}
-        </p>
 
+        {/* Waste Type Selection */}
         <div>
-          <label>Waste Type:</label>
-          <div>
+          <label className="text-xl font-semibold text-gray-700 mb-4 block">
+            Select Waste Type:
+          </label>
+          <div className="grid grid-cols-4 gap-4">
             {[
-              "Electronic Waste",
-              "Bulky Waste",
-              "Organic Waste",
-              "Medical Waste",
-            ].map((type) => (
-              <button
-                type="button"
+              { type: "Electronic Waste", img: ewaste },
+              { type: "Bulky Waste", img: bullkwaste },
+              { type: "Organic Waste", img: organicwaste },
+              { type: "Medical Waste", img: medicalwaste },
+            ].map(({ type, img }) => (
+              <div
                 key={type}
+                className={`p-4 border rounded-lg flex items-center space-x-4 cursor-pointer ${
+                  wasteType === type
+                    ? "border-green-500 bg-green-100"
+                    : "border-gray-300"
+                }`}
                 onClick={() => setWasteType(type)}
-                style={{ backgroundColor: wasteType === type ? "green" : "" }}
               >
-                {type}
-              </button>
+                <img
+                  src={img}
+                  alt={type}
+                  className="w-16 h-16 object-cover rounded-lg"
+                />
+                <span className="text-lg font-medium">{type}</span>
+              </div>
             ))}
           </div>
         </div>
+
+        {/* Waste Details */}
         <div>
-          <label>Waste Details:</label>
+          <label className="text-lg font-semibold text-gray-700">
+            Waste Details:
+          </label>
           <textarea
             value={details}
             onChange={(e) => setDetails(e.target.value)}
             required
+            className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-green-500 bg-gray-100"
+            placeholder="Describe the waste..."
           />
         </div>
-        <div>
-          <label>Preferred Date:</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
+
+        {/* Date and Time */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-lg font-semibold text-gray-700">
+              Preferred Date:
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 bg-gray-100"
+            />
+          </div>
+          <div>
+            <label className="text-lg font-semibold text-gray-700">
+              Preferred Time:
+            </label>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              required
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 bg-gray-100"
+            />
+          </div>
         </div>
-        <div>
-          <label>Preferred Time:</label>
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            required
-          />
+
+        {/* Submit Button */}
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="px-12 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition duration-300 w-full md:w-1/3"
+          >
+            Update
+          </button>
         </div>
-        <button type="submit">Update</button>
       </form>
     </div>
   );
