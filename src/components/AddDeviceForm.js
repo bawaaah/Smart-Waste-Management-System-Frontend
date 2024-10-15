@@ -1,54 +1,60 @@
-// src/components/AddDeviceForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
 const AddDeviceForm = () => {
-    const [deviceId, setDeviceId] = useState('');
     const [status, setStatus] = useState('Active');
     const [message, setMessage] = useState('');
     const [spaceLeft, setSpaceLeft] = useState('');
-    const [deviceType, setdeviceType] = useState('');
+    const [deviceType, setDeviceType] = useState('');
     const [capacity, setCapacity] = useState('');
+    const [qrCode, setQrCode] = useState(''); // State to hold QR code
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
             const response = await axios.post('http://localhost:3000/api/device/add', {
-                deviceId,
                 status,
                 spaceLeft,
                 deviceType,
                 capacity
             });
             setMessage('Device added successfully!');
+            setQrCode(response.data.qrCode); // Set QR code state
         } catch (error) {
             setMessage(`Error: ${error.response?.data.message || 'Failed to add device'}`);
         }
+    };
+
+    // Function to download the QR code
+    const downloadQRCode = () => {
+        const link = document.createElement('a');
+        link.href = qrCode; // QR code image URL
+        link.download = 'qr_code.png'; // Name of the downloaded file
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link); // Clean up
     };
 
     return (
         <div className="container mx-auto p-4">
             <h2 className="text-2xl font-bold">Add New Device</h2>
             <form onSubmit={handleSubmit} className="mt-4">
-                <label className="block mb-2">Device ID:</label>
-                <input
-                    type="text"
-                    value={deviceId}
-                    onChange={(e) => setDeviceId(e.target.value)}
-                    className="border p-2 mb-4 w-full"
-                    required
-                />
-
+                {/* Removed Device ID field as it is auto-generated */}
                 <label className="block mb-2">Device Type:</label>
-                <input
-                    type="text"
+                <select
                     value={deviceType}
-                    onChange={(e) => setdeviceType(e.target.value)}
+                    onChange={(e) => setDeviceType(e.target.value)}
                     className="border p-2 mb-4 w-full"
                     required
-                />      
-                
+                >
+                    <option value="">Select Device Type</option>
+                    <option value="Plastic / Polytene">Plastic / Polytene</option>
+                    <option value="Food / Degradable">Food / Degradable</option>
+                    <option value="Paper">Paper</option>
+                    <option value="Glass">Glass</option>
+                </select>
+
                 <label className="block mb-2">Status:</label>
                 <select
                     value={status}
@@ -72,6 +78,24 @@ const AddDeviceForm = () => {
                 <button type="submit" className="bg-blue-500 text-white p-2">Add Device</button>
 
                 {message && <p className="mt-4">{message}</p>}
+                {qrCode && ( // Display QR code if it exists
+                    <div className="mt-4">
+                        <h3 className="text-lg font-bold">QR Code:</h3>
+                        {/* Increase the size of the QR code image */}
+                        <img 
+                            src={qrCode} 
+                            alt="QR Code" 
+                            className="mt-2" 
+                            style={{ width: '200px', height: '200px' }} // Set the width and height as needed
+                        />
+                        <button 
+                            onClick={downloadQRCode} 
+                            className="mt-2 bg-green-500 text-white p-2 rounded"
+                        >
+                            Download QR Code
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     );
