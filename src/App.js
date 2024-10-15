@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Home from "./Home";
 import PaymentDetails from "./PaymentManagement/PaymentDetails";
+import PaymentGateway from "./PaymentManagement/PaymentGateway";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
 
           {/* Payment */}
           <Route path="/PaymentDetails" element={<PaymentDetails/>}></Route>
+          <Route path="/PaymentGateway" element={<PaymentGateway/>}></Route>
           
         </Routes>
       </BrowserRouter>
