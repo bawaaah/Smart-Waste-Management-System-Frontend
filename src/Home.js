@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import VerticalNav from './components/Navi';
 import WasteGraph from './PaymentManagement/WasteGraph'; // Import the graph component
 
@@ -65,9 +66,11 @@ function Home() {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold">{link.title}</h3>
                 <p className="text-gray-600">{link.description}</p>
-                <button className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                  {link.buttonText}
-                </button>
+                <Link to={'/PaymentDetails'}>
+                  <button className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                    {link.buttonText}
+                  </button>
+                </Link>
               </div>
               <img src={link.imageUrl} alt={link.title} className="w-28 h-28 rounded-full ml-1" />
             </div>
