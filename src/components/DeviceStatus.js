@@ -33,8 +33,8 @@ const DeviceStatus = () => {
     }, {});
 
     // Navigate to WasteDashboard on device click
-    const handleDeviceClick = (deviceId) => {
-        navigate(`/waste-dashboard/${deviceId}`);
+    const handleDeviceClick = (deviceId, deviceType) => {
+        navigate(`/waste-dashboard/${deviceId}/${deviceType}`);
     };
 
     // Get color based on space left
@@ -44,12 +44,15 @@ const DeviceStatus = () => {
         return 'bg-red-500'; // Low space left (mostly full)
     };
 
-    // Get background color based on device type
-    const getBackgroundColor = (deviceType) => {
+    // Get background color based on device type or status
+    const getBackgroundColor = (deviceType, status) => {
+        if (status !== 'Active') {
+            return 'bg-gray-300'; // Gray for inactive devices
+        }
         switch (deviceType) {
-            case 'Plastic / Polytene':
+            case 'Plastic':
                 return 'bg-orange-300'; // Orange based color
-            case 'Food / Degradable':
+            case 'Degradable':
                 return 'bg-green-300'; // Green based color
             case 'Paper':
                 return 'bg-blue-300'; // Blue based color
@@ -89,8 +92,8 @@ const DeviceStatus = () => {
                                 return (
                                     <div 
                                         key={device.deviceId}
-                                        className={`device-card ${getBackgroundColor(deviceType)}`} // Apply background color
-                                        onClick={() => handleDeviceClick(device.deviceId)}
+                                        className={`device-card ${getBackgroundColor(deviceType, device.status)}`} // Apply background color
+                                        onClick={() => handleDeviceClick(device.deviceId, device.deviceType)}
                                     >
                                         <h4 className="text-lg font-bold mb-2">Device ID: {device.deviceId}</h4>
                                         <p className="text-gray-700 mb-2"><strong>Status:</strong> {device.status}</p>

@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'; // Import useParams
 import AddWasteRecordForm from './AddWasteRecordForm'; // Import the form
 
 const WasteDashboard = () => {
-    const { deviceId } = useParams(); // Get deviceId from URL parameters
+    const { deviceId, deviceType } = useParams(); // Get deviceId from URL parameters
     const [wasteData, setWasteData] = useState([]);
     const [showForm, setShowForm] = useState(false); // State to control form visibility
 
@@ -34,7 +34,7 @@ const WasteDashboard = () => {
             </button>
 
             {/* Conditionally render the AddWasteRecordForm */}
-            {showForm && <AddWasteRecordForm deviceId={deviceId} />} {/* Pass deviceId to the form */}
+            {showForm && <AddWasteRecordForm deviceId={deviceId} deviceType={deviceType}/>} {/* Pass deviceId to the form */}
 
             <div className="mt-4">
                 <h3 className="text-xl">Waste Records</h3>

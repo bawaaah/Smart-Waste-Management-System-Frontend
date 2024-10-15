@@ -49,8 +49,8 @@ const AddDeviceForm = () => {
                     required
                 >
                     <option value="">Select Device Type</option>
-                    <option value="Plastic / Polytene">Plastic / Polytene</option>
-                    <option value="Food / Degradable">Food / Degradable</option>
+                    <option value="Plastic">Plastic / Polytene</option>
+                    <option value="Degradable">Food / Degradable</option>
                     <option value="Paper">Paper</option>
                     <option value="Glass">Glass</option>
                 </select>

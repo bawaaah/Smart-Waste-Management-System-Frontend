@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AddWasteRecordForm = ({ deviceId }) => { // Accept deviceId as a prop
+const AddWasteRecordForm = ({ deviceId,deviceType }) => { // Accept deviceId as a prop
     const [weight, setWeight] = useState('');
     const [message, setMessage] = useState('');
 
@@ -12,6 +12,7 @@ const AddWasteRecordForm = ({ deviceId }) => { // Accept deviceId as a prop
             const response = await axios.post('http://localhost:3000/api/waste/add', {
                 weight,
                 deviceId,
+                deviceType
             });
             setMessage('Waste record added successfully!');
             setWeight(''); // Reset the weight after submission
