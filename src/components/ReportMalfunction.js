@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const ReportMalfunction = () => {
+const ReportMalfunction = ({ userId }) => {
     const [deviceId, setDeviceId] = useState('');
     const [message, setMessage] = useState('');
     const [status, setStatus] = useState('');
@@ -12,7 +12,7 @@ const ReportMalfunction = () => {
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/malfunctionReport/');
+                const response = await axios.get(`http://localhost:3000/api/malfunctionReport/${userId}`);
                 setReports(response.data);
             } catch (err) {
                 setError('Error fetching reports.');
@@ -44,7 +44,7 @@ const ReportMalfunction = () => {
 
             if (checkDeviceResponse.data && checkDeviceResponse.data.exists) {
                 // Submit the malfunction report
-                const response = await axios.post('http://localhost:3000/api/device/report-malfunction', { deviceId, message });
+                const response = await axios.post('http://localhost:3000/api/device/report-malfunction', { deviceId, message,userId });
                 setStatus(response.data.message);
                 setDeviceId('');
                 setMessage('');
@@ -76,7 +76,7 @@ const ReportMalfunction = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-4 text-center">Report a Malfunctioning Device</h1>
+            <h1 className="text-3xl font-bold mb-4 text-center">Report a Malfunctioning Device : {userId}</h1>
             {error && <p className="text-red-500 text-center">{error}</p>}
             {status && <p className="text-green-500 text-center">{status}</p>}
             

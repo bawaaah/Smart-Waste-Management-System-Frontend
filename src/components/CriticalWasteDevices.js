@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const CriticalWasteDevices = () => {
+const CriticalWasteDevices = ({userId}) => {
     const [criticalDevices, setCriticalDevices] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -10,7 +10,7 @@ const CriticalWasteDevices = () => {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/device');
+                const response = await axios.get(`http://localhost:3000/api/device/${userId}`);
                 const devices = response.data;
 
                 // Filter devices that are critical (e.g., fill level > 70%)

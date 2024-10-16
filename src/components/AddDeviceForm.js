@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AddDeviceForm = () => {
+const AddDeviceForm = ({ userId }) => {
     const [status, setStatus] = useState('Active');
     const [message, setMessage] = useState('');
     const [spaceLeft, setSpaceLeft] = useState('');
@@ -17,7 +17,8 @@ const AddDeviceForm = () => {
                 status,
                 spaceLeft,
                 deviceType,
-                capacity
+                capacity,
+                userId
             });
             setMessage('Device added successfully!');
             setQrCode(response.data.qrCode); // Set QR code state

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react'; // Importing QR code component
 import './DeviceStatus.css'; // Importing CSS file for styles
 
-const DeviceStatus = () => {
+const DeviceStatus = ({ userId }) => {
     const [devices, setDevices] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ const DeviceStatus = () => {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/device');
+                const response = await axios.get(`http://localhost:3000/api/device/${userId}`);
                 setDevices(response.data);
             } catch (error) {
                 console.error('Error fetching device status:', error);
@@ -21,7 +21,7 @@ const DeviceStatus = () => {
         };
 
         fetchDevices();
-    }, []);
+    }, [userId]);
 
     // Group devices by type
     const groupedDevices = devices.reduce((acc, device) => {
@@ -33,8 +33,8 @@ const DeviceStatus = () => {
     }, {});
 
     // Navigate to WasteDashboard on device click
-    const handleDeviceClick = (deviceId, deviceType) => {
-        navigate(`/waste-dashboard/${deviceId}/${deviceType}`);
+    const handleDeviceClick = (deviceId, deviceType, userId) => {
+        navigate(`/waste-dashboard/${deviceId}/${deviceType}/${userId}`);
     };
 
     // Get color based on space left
@@ -93,7 +93,7 @@ const DeviceStatus = () => {
                                     <div 
                                         key={device.deviceId}
                                         className={`device-card ${getBackgroundColor(deviceType, device.status)}`} // Apply background color
-                                        onClick={() => handleDeviceClick(device.deviceId, device.deviceType)}
+                                        onClick={() => handleDeviceClick(device.deviceId, device.deviceType,userId)}
                                     >
                                         <h4 className="text-lg font-bold mb-2">Device ID: {device.deviceId}</h4>
                                         <p className="text-gray-700 mb-2"><strong>Status:</strong> {device.status}</p>

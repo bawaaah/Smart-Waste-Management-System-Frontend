@@ -7,7 +7,7 @@ import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend }
 // Register chart components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const WasteMonitoringDashboard = () => {
+const WasteMonitoringDashboard = ({ userId }) => {
     const [totalDevices, setTotalDevices] = useState(0);
     const [activeDevices, setActiveDevices] = useState(0);
     const [devicesNeedingAttention, setDevicesNeedingAttention] = useState(0);
@@ -21,7 +21,7 @@ const WasteMonitoringDashboard = () => {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/device'); // Adjust the URL based on your API endpoint
+                const response = await axios.get(`http://localhost:3000/api/device/${userId}`); // Adjust the URL based on your API endpoint
                 const devices = response.data;
                 
                 // Calculate statistics
@@ -41,7 +41,7 @@ const WasteMonitoringDashboard = () => {
     useEffect(() => {
         const fetchWasteRecords = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/waste/'); // Adjust the URL based on your API endpoint
+                const response = await axios.get(`http://localhost:3000/api/waste/${userId}`); // Adjust the URL based on your API endpoint
                 const records = response.data;
 
                 // Filter records for the last 7 days
@@ -138,6 +138,8 @@ const WasteMonitoringDashboard = () => {
 
     return (
         <div className="container mx-auto p-4">
+             <h1 className="text-3xl font-bold mb-6">{ userId }</h1>
+
             <h1 className="text-3xl font-bold mb-6">Waste Monitoring Dashboard</h1>
 
             {error && <p className="text-red-500">{error}</p>}
