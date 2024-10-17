@@ -9,7 +9,15 @@ import WasteMonitoringDashboard from './components/WasteMonitoringDashboard'; //
 import ReportMalfunction from './components/ReportMalfunction'; // Import the new component
 import CriticalWasteDevices from './components/CriticalWasteDevices'; // Import the new component
 import Login from "./components/Login/Login"; // Ensure this import is correct
-import Signup from "./components/Login/Signup"; // Ensure this import is correct
+import Signup from "./components/Login/Signup"; // Ensure this import is correct 
+import AdminDashboard from './components/Admin/AdminDashboard'; // Import the new component 
+import AdminDeviceStatus from './components/Admin/AdminDeviceStatus'; // Import the new component 
+import AdminReportMalfunction from './components/Admin/AdminReportMalfunction'; // Import the new component 
+import AdminUserDashboard from './components/Admin/AdminUserDashboard'; 
+import GenerateReport from './components/Admin/GenerateReport'; 
+
+
+
 
 
 
@@ -51,10 +59,16 @@ const App = () => {
                 <Route path="/WasteMonitoringDashboard" element={<WasteMonitoringDashboard username={username} userId={userId}/>} /> {/* Default route shows WasteMonitoringDashboard */}
                 <Route path="/device-status" element={<DeviceStatus username={username} userId={userId}/>} /> {/* Route for DeviceStatus */}
                 <Route path="/waste-dashboard/:deviceId/:deviceType/:userId" element={<WasteDashboard />} /> {/* Route for WasteDashboard */}
-                <Route path="/add-device" element={<AddDeviceForm username={username} userId={userId}/>} /> {/* Route for AddDeviceForm */}
+                <Route path="/add-device/:userId" element={<AddDeviceForm />} /> {/* Route for AddDeviceForm */}
                 <Route path="/add-waste-record" element={<AddWasteRecordForm username={username} userId={userId}/>} /> {/* Route for AddWasteRecordForm */}
                 <Route path="/ReportMalfunction" element={<ReportMalfunction username={username} userId={userId}/>} /> {/* Route for AddWasteRecordForm */}
                 <Route path="/critical-devices" element={<CriticalWasteDevices username={username} userId={userId}/>} /> {/* New route */}
+                <Route path="/AdminDashboard" element={<AdminDashboard username={username} userId={userId}/>} /> {/* New route */}
+                <Route path="/AdminDeviceStatus" element={<AdminDeviceStatus username={username} userId={userId}/>} /> {/* New route */}
+                <Route path="/AdminReportMalfunction" element={<AdminReportMalfunction username={username} userId={userId}/>} /> {/* New route */} 
+                <Route path="/AdminUserDashboard" element={<AdminUserDashboard username={username} userId={userId}/>} /> {/* New route */} 
+                <Route path="/GenerateReport" element={<GenerateReport username={username} userId={userId}/>} /> {/* New route */} 
+
             </Routes>
         </Router>
     );

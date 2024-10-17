@@ -7,7 +7,8 @@ import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend }
 // Register chart components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const WasteMonitoringDashboard = ({ userId }) => {
+const AdminDashboard = () => {
+    const [totalUsers, setTotalUsers] = useState(0);
     const [totalDevices, setTotalDevices] = useState(0);
     const [activeDevices, setActiveDevices] = useState(0);
     const [devicesNeedingAttention, setDevicesNeedingAttention] = useState(0);
@@ -17,31 +18,36 @@ const WasteMonitoringDashboard = ({ userId }) => {
 
     const navigate = useNavigate();
 
-    // Fetch devices data from the backend on component mount
+    // Fetch users and devices data from the backend on component mount
     useEffect(() => {
-        const fetchDevices = async () => {
+        const fetchAdminData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/device/${userId}`); // Adjust the URL based on your API endpoint
-                const devices = response.data;
-                
+                // Fetch total users
+                const userResponse = await axios.get('http://localhost:3000/api/auth/totalUsers'); // Adjust the URL based on your API endpoint
+                setTotalUsers(userResponse.data.length);
+
+                // Fetch devices
+                const deviceResponse = await axios.get('http://localhost:3000/api/device'); // Adjust the URL based on your API endpoint
+                const devices = deviceResponse.data;
+
                 // Calculate statistics
                 setTotalDevices(devices.length);
                 setActiveDevices(devices.filter(device => device.status === 'Active').length);
                 setDevicesNeedingAttention(devices.filter(device => device.status !== 'Active').length);
                 setCriticalWasteLevels(devices.filter(device => (device.spaceLeft / device.capacity) * 100 <= 30).length); // e.g., less than 30% space left
             } catch (err) {
-                setError('Failed to fetch device data.');
+                setError('Failed to fetch admin data.');
             }
         };
 
-        fetchDevices();
+        fetchAdminData();
     }, []);
 
-    // Fetch recent waste records and filter by the last 7 days
+    // Fetch recent waste records (for the last 7 days)
     useEffect(() => {
         const fetchWasteRecords = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/waste/${userId}`); // Adjust the URL based on your API endpoint
+                const response = await axios.get('http://localhost:3000/api/waste'); // Adjust the URL based on your API endpoint
                 const records = response.data;
 
                 // Filter records for the last 7 days
@@ -62,48 +68,36 @@ const WasteMonitoringDashboard = ({ userId }) => {
         fetchWasteRecords();
     }, []);
 
-    // Prepare data for the chart
-    const prepareChartData = () => {
-        // Group waste records by date and deviceType
+    // Helper function to prepare chart data for each waste type
+    const prepareChartDataForType = (type) => {
         const groupedData = {};
+
         wasteRecords.forEach(record => {
             const date = new Date(record.date).toLocaleDateString();
             if (!groupedData[date]) {
-                groupedData[date] = { Plastic: 0, Degradable: 0, Paper: 0, Glass: 0 };
+                groupedData[date] = 0;
             }
-            groupedData[date][record.deviceType] += record.weight;
+            if (record.deviceType === type) {
+                groupedData[date] += record.weight;
+            }
         });
 
-        // Extract labels and dataset for the chart
         const labels = Object.keys(groupedData);
-        const plasticData = labels.map(label => groupedData[label].Plastic);
-        const foodData = labels.map(label => groupedData[label].Degradable);
-        const paperData = labels.map(label => groupedData[label].Paper);
-        const glassData = labels.map(label => groupedData[label].Glass);
+        const data = labels.map(label => groupedData[label]);
 
         return {
             labels,
             datasets: [
                 {
-                    label: 'Plastic',
-                    data: plasticData,
-                    backgroundColor: 'rgba(252, 211, 77, 0.5)', // Orange based color (bg-orange-300)
+                    label: `${type} Waste`,
+                    data: data,
+                    backgroundColor: {
+                        Plastic: 'rgba(252, 211, 77, 0.5)', // Orange based color
+                        Degradable: 'rgba(134, 239, 172, 0.5)', // Green based color
+                        Paper: 'rgba(147, 197, 253, 0.5)', // Blue based color
+                        Glass: 'rgba(248, 113, 113, 0.5)' // Red based color
+                    }[type],
                 },
-                {
-                    label: 'Degradable',
-                    data: foodData,
-                    backgroundColor: 'rgba(134, 239, 172, 0.5)', // Green based color (bg-green-300)
-                },
-                {
-                    label: 'Paper',
-                    data: paperData,
-                    backgroundColor: 'rgba(147, 197, 253, 0.5)', // Blue based color (bg-blue-300)
-                },
-                {
-                    label: 'Glass',
-                    data: glassData,
-                    backgroundColor: 'rgba(248, 113, 113, 0.5)', // Red based color (bg-red-300)
-                },                
             ],
         };
     };
@@ -116,7 +110,7 @@ const WasteMonitoringDashboard = ({ userId }) => {
             },
             title: {
                 display: true,
-                text: 'Waste Records by Device Type (Last 7 Days)',
+                text: 'Waste Records (Last 7 Days)',
             },
         },
         scales: {
@@ -138,15 +132,23 @@ const WasteMonitoringDashboard = ({ userId }) => {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6">Waste Monitoring Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
             {error && <p className="text-red-500">{error}</p>}
 
             {/* Display dashboard overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <div 
                     className="dashboard-card bg-blue-500 text-white p-4 rounded-lg shadow-md cursor-pointer hover:bg-blue-600 transition-colors"
-                    onClick={() => navigate('/device-status')} // Navigate when clicked
+                    onClick={() => navigate('/AdminUserDashboard')} // Navigate when clicked
+                >
+                    <h2 className="text-xl font-bold">Total Users</h2>
+                    <p className="text-3xl mt-2">{totalUsers}</p>
+                </div>
+
+                <div 
+                    className="dashboard-card bg-blue-500 text-white p-4 rounded-lg shadow-md cursor-pointer hover:bg-blue-600 transition-colors"
+                    onClick={() => navigate('/AdminDeviceStatus')} // Navigate when clicked
                 >
                     <h2 className="text-xl font-bold">Total Devices</h2>
                     <p className="text-3xl mt-2">{totalDevices}</p>
@@ -157,10 +159,9 @@ const WasteMonitoringDashboard = ({ userId }) => {
                     <p className="text-3xl mt-2">{activeDevices}</p>
                 </div>
 
-                
                 <div 
                     className="dashboard-card bg-red-500 text-white p-4 rounded-lg shadow-md cursor-pointer hover:bg-red-600 transition-colors"
-                    onClick={() => navigate('/ReportMalfunction')} // Navigate when clicked
+                    onClick={() => navigate('/AdminReportMalfunction')} // Navigate when clicked
                 >
                     <h2 className="text-xl font-bold">Malfunctioning Devices</h2>
                     <p className="text-3xl mt-2">{devicesNeedingAttention}</p>
@@ -173,18 +174,48 @@ const WasteMonitoringDashboard = ({ userId }) => {
                     <h2 className="text-xl font-bold">Waste Levels Critical</h2>
                     <p className="text-3xl mt-2">{criticalWasteLevels}</p>
                 </div>
-
             </div>
 
-            {/* Bar chart for waste records */}
-            <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4">Waste Records by Device Type (Last 7 Days)</h2>
-                <div className="w-full h-96">
-                    <Bar data={prepareChartData()} options={chartOptions} />
+            {/* Bar charts for each waste type */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                
+
+                {/* Plastic Waste Chart */}
+                <div className="w-full h-96 mb-8">
+                    <h3 className="text-xl font-semibold mb-4">Plastic Waste (Last 7 Days)</h3>
+                    <Bar data={prepareChartDataForType('Plastic')} options={chartOptions} />
                 </div>
+
+                {/* Degradable Waste Chart */}
+                <div className="w-full h-96 mb-8">
+                    <h3 className="text-xl font-semibold mb-4">Degradable Waste (Last 7 Days)</h3>
+                    <Bar data={prepareChartDataForType('Degradable')} options={chartOptions} />
+                </div>
+
+                {/* Paper Waste Chart */}
+                <div className="w-full h-96 mb-8">
+                    <h3 className="text-xl font-semibold mb-4">Paper Waste (Last 7 Days)</h3>
+                    <Bar data={prepareChartDataForType('Paper')} options={chartOptions} />
+                </div>
+
+                {/* Glass Waste Chart */}
+                <div className="w-full h-96 mb-8">
+                    <h3 className="text-xl font-semibold mb-4">Glass Waste (Last 7 Days)</h3>
+                    <Bar data={prepareChartDataForType('Glass')} options={chartOptions} />
+                </div>
+            </div>
+
+            {/* Button to generate report */}
+            <div className="mt-8">
+                <button
+                    className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                    onClick={() => navigate('/GenerateReport')} // Navigate to report generation
+                >
+                    Generate Report
+                </button>
             </div>
         </div>
     );
 };
 
-export default WasteMonitoringDashboard;
+export default AdminDashboard;

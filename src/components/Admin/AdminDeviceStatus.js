@@ -2,18 +2,21 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react'; // Importing QR code component
-import './DeviceStatus.css'; // Importing CSS file for styles
 
-const DeviceStatus = ({ userId }) => {
+const AdminDeviceStatus = ({ userId }) => {
     const [devices, setDevices] = useState([]);
+    const [filteredDevices, setFilteredDevices] = useState([]); // State for filtered devices
+    const [searchTerm, setSearchTerm] = useState(''); // State for search term
     const [error, setError] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false); // Track deletion status
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/device/${userId}`);
+                const response = await axios.get(`http://localhost:3000/api/device/`);
                 setDevices(response.data);
+                setFilteredDevices(response.data); // Set filtered devices to full list initially
             } catch (error) {
                 console.error('Error fetching device status:', error);
                 setError('Failed to fetch device data. Please try again later.');
@@ -23,8 +26,20 @@ const DeviceStatus = ({ userId }) => {
         fetchDevices();
     }, [userId]);
 
+    // Handle search input change
+    const handleSearch = (event) => {
+        const value = event.target.value;
+        setSearchTerm(value);
+
+        // Filter devices based on the device ID
+        const filtered = devices.filter((device) =>
+            device.deviceId.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredDevices(filtered);
+    };
+
     // Group devices by type
-    const groupedDevices = devices.reduce((acc, device) => {
+    const groupedDevices = filteredDevices.reduce((acc, device) => {
         if (!acc[device.deviceType]) {
             acc[device.deviceType] = [];
         }
@@ -63,6 +78,23 @@ const DeviceStatus = ({ userId }) => {
         }
     };
 
+    // Function to delete a device
+    const handleDeleteDevice = async (deviceId) => {
+        if (window.confirm('Are you sure you want to delete this device?')) {
+            setIsDeleting(true);
+            try {
+                await axios.delete(`http://localhost:3000/api/device/delete/${deviceId}`);
+                setDevices((prevDevices) => prevDevices.filter(device => device.deviceId !== deviceId));
+                setFilteredDevices((prevDevices) => prevDevices.filter(device => device.deviceId !== deviceId));
+                alert('Device deleted successfully.');
+            } catch (error) {
+                console.error('Error deleting device:', error);
+                setError('Failed to delete the device. Please try again later.');
+            }
+            setIsDeleting(false);
+        }
+    };
+
     // Determine number of categories
     const categoryCount = Object.keys(groupedDevices).length;
 
@@ -70,12 +102,17 @@ const DeviceStatus = ({ userId }) => {
         <div className="container mx-auto p-4">
             <h2 className="text-2xl font-bold mb-4">Device Status</h2>
             {error && <p className="text-red-500">{error}</p>}
-            <button 
-                onClick={() => navigate(`/add-device/${userId}`)}  
-                className="bg-green-500 text-white px-4 py-2 mb-6 rounded"
-            >
-                Add New Device
-            </button>
+
+            {/* Search input */}
+            <div className="mb-4">
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    placeholder="Search by Device ID"
+                    className="border border-gray-300 p-2 rounded w-full"
+                />
+            </div>
 
             {/* Display grouped devices by type */}
             <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-${Math.min(categoryCount, 4)} gap-6`}>
@@ -119,6 +156,18 @@ const DeviceStatus = ({ userId }) => {
                                                 className="qr-code" // Add class for styling
                                             />
                                         </div>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevent triggering device click event
+                                                handleDeleteDevice(device.deviceId);
+                                            }}
+                                            className="bg-red-500 text-white px-3 py-1 rounded mt-2"
+                                            disabled={isDeleting} // Disable button during deletion process
+                                        >
+                                            {isDeleting ? 'Removing...' : 'Remove Device'}
+                                        </button>
                                     </div>
                                 );
                             })}
@@ -130,4 +179,4 @@ const DeviceStatus = ({ userId }) => {
     );
 };
 
-export default DeviceStatus;
+export default AdminDeviceStatus;

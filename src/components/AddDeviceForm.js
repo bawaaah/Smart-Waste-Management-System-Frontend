@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-const AddDeviceForm = ({ userId }) => {
+const AddDeviceForm = () => {
     const [status, setStatus] = useState('Active');
     const [message, setMessage] = useState('');
     const [spaceLeft, setSpaceLeft] = useState('');
     const [deviceType, setDeviceType] = useState('');
     const [capacity, setCapacity] = useState('');
     const [qrCode, setQrCode] = useState(''); // State to hold QR code
+    const { userId } = useParams();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
