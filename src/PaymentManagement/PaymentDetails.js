@@ -3,6 +3,8 @@ import VerticalNav from '../components/Navi';
 import { Link } from 'react-router-dom';
 
 function PaymentDetails() {
+  const totalAmountToPay = 540.00; // Amount to pass
+
   return (
     <div className="h-screen flex bg-gray-50">
       {/* Vertical Navigation */}
@@ -76,7 +78,12 @@ function PaymentDetails() {
 
         {/* Payment Button */}
         <div className="flex justify-center mt-8">
-          <Link to={'/PaymentGateway'}>
+          <Link
+            to={{
+              pathname: '/PaymentGateway',
+              state: { amount: totalAmountToPay },
+            }}
+          >
             <button className="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out focus:ring-4 focus:ring-green-300">
               Process Payment
             </button>
