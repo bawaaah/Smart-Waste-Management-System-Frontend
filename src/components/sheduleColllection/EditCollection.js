@@ -26,6 +26,7 @@ const EditCollection = () => {
   const { id } = useParams();
   const [collection, setCollection] = useState(null);
   const [location, setLocation] = useState({ lat: null, lng: null });
+  const [address, setAddress] = useState("");
   const [wasteType, setWasteType] = useState("");
   const [details, setDetails] = useState("");
   const [date, setDate] = useState("");
@@ -57,6 +58,23 @@ const EditCollection = () => {
     fetchCollection();
   }, [id]);
 
+  const fetchAddress = async (lat, lng) => {
+    try {
+      const apiKey = "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM";
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+      );
+      if (response.data.results.length > 0) {
+        setAddress(response.data.results[0].formatted_address);
+      } else {
+        setAddress("Address not found");
+      }
+    } catch (err) {
+      console.error("Error fetching address:", err);
+      setAddress("Error fetching address");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const updatedCollection = { location, wasteType, details, date, time };
@@ -70,7 +88,7 @@ const EditCollection = () => {
         }
       );
       toast.success("Collection updated successfully!", {
-        position: "top-right",
+        position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -78,7 +96,7 @@ const EditCollection = () => {
         draggable: true,
         progress: undefined,
       });
-      navigate(`/collection/${id}`);
+      navigate(`/dashboard`);
     } catch (err) {
       console.error("Error updating collection:", err);
       toast.error("Failed to update collection. Please try again.", {
@@ -93,7 +111,10 @@ const EditCollection = () => {
     }
   };
 
-  const handleMapClick = ({ lat, lng }) => setLocation({ lat, lng });
+  const handleMapClick = async ({ lat, lng }) => {
+    setLocation({ lat, lng });
+    fetchAddress(lat, lng);
+  };
 
   if (!collection) return <div>Loading...</div>;
 
@@ -118,6 +139,18 @@ const EditCollection = () => {
             )}
           </GoogleMapReact>
         </div>
+
+        {/* Display Address */}
+        {address && (
+          <div>
+            <label className="text-lg font-semibold text-gray-700">
+              Location:
+            </label>
+            <p className="text-lg text-gray-800 p-3 bg-gray-100 rounded-lg border border-gray-200">
+              {address}
+            </p>
+          </div>
+        )}
 
         {/* Waste Type Selection */}
         <div>

@@ -24,6 +24,7 @@ const Marker = ({ icon }) => {
 
 const ScheduleCollection = ({ userId }) => {
   const [location, setLocation] = useState({ lat: null, lng: null });
+  const [address, setAddress] = useState("");
   const [wasteType, setWasteType] = useState("");
   const [details, setDetails] = useState("");
   const [date, setDate] = useState("");
@@ -36,6 +37,7 @@ const ScheduleCollection = ({ userId }) => {
     const collection = {
       userId,
       location,
+      address,
       wasteType,
       details,
       date,
@@ -47,13 +49,8 @@ const ScheduleCollection = ({ userId }) => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Collection scheduled successfully!", {
-        position: "top-right",
+        position: "top-center",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
       navigate("/dashboard");
     } catch (err) {
@@ -61,17 +58,31 @@ const ScheduleCollection = ({ userId }) => {
       toast.error("Failed to schedule collection. Please try again.", {
         position: "top-right",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
     }
   };
 
-  const handleMapClick = ({ lat, lng }) => {
+  const handleMapClick = async ({ lat, lng }) => {
     setLocation({ lat, lng });
+    fetchAddress(lat, lng);
+  };
+
+  // Fetch address using reverse geocoding API (Google Maps API)
+  const fetchAddress = async (lat, lng) => {
+    try {
+      const apiKey = "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM";
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+      );
+      if (response.data.results.length > 0) {
+        setAddress(response.data.results[0].formatted_address);
+      } else {
+        setAddress("Address not found");
+      }
+    } catch (err) {
+      console.error("Error fetching address:", err);
+      setAddress("Error fetching address");
+    }
   };
 
   return (
@@ -95,6 +106,18 @@ const ScheduleCollection = ({ userId }) => {
             )}
           </GoogleMapReact>
         </div>
+
+        {/* Display Address */}
+        {address && (
+          <div>
+            <label className="text-lg font-semibold text-gray-700">
+              Location:
+            </label>
+            <p className="text-lg text-gray-800 p-3 bg-gray-100 rounded-lg border border-gray-200">
+              {address}
+            </p>
+          </div>
+        )}
 
         {/* Waste Type Selection */}
         <div>
