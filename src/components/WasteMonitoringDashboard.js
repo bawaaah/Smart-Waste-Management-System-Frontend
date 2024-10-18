@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-
+import Header from './Home/Header'; // Import Header
+import Footer from './Home/Footer'; // Import Footer
 // Register chart components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -137,8 +138,11 @@ const WasteMonitoringDashboard = ({ userId }) => {
     };
 
     return (
+        <div>
+        <Header />
+
         <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6">Waste Monitoring Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center pt-10">Waste Monitoring Dashboard</h1>
 
             {error && <p className="text-red-500">{error}</p>}
 
@@ -183,6 +187,8 @@ const WasteMonitoringDashboard = ({ userId }) => {
                     <Bar data={prepareChartData()} options={chartOptions} />
                 </div>
             </div>
+        </div>
+        <Footer />
         </div>
     );
 };

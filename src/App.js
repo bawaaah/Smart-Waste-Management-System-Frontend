@@ -16,6 +16,9 @@ import AdminReportMalfunction from './components/Admin/AdminReportMalfunction'; 
 import AdminUserDashboard from './components/Admin/AdminUserDashboard'; 
 import GenerateReport from './components/Admin/GenerateReport'; 
 
+import Homepage from './components/Home/Homepage';
+
+
 
 
 
@@ -68,6 +71,7 @@ const App = () => {
                 <Route path="/AdminReportMalfunction" element={<AdminReportMalfunction username={username} userId={userId}/>} /> {/* New route */} 
                 <Route path="/AdminUserDashboard" element={<AdminUserDashboard username={username} userId={userId}/>} /> {/* New route */} 
                 <Route path="/GenerateReport" element={<GenerateReport username={username} userId={userId}/>} /> {/* New route */} 
+                <Route path="/Homepage" element={<Homepage username={username} userId={userId}/>} /> {/* New route */} 
 
             </Routes>
         </Router>

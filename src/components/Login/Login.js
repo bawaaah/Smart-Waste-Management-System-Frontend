@@ -30,7 +30,7 @@ const Login = ({ setToken, setUsername: setParentUsername, setUserId }) => {
       setUsername(user.username);
       setUserId(user._id);
 
-      navigate(user.isAdmin ? "/AdminDashboard" : "/WasteMonitoringDashboard");
+      navigate(user.isAdmin ? "/AdminDashboard" : "/Homepage");
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       // You can use your own toast notification or alert here.
