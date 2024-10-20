@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import VerticalNav from '../components/Navi';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-function PaymentDetails() {
-  const totalAmountToPay = 540.00; // Amount to pass
+function PaymentDetails({ amount }) {
+  const [totalAmountToPay, setTotal] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setTotal(amount);
+  }, [amount]);
+
+  const handlePayment = () => {
+    navigate('/PaymentGateway', { state: { amount: totalAmountToPay } });
+  };
 
   return (
     <div className="h-screen flex bg-gray-50">
@@ -73,21 +82,17 @@ function PaymentDetails() {
         {/* Total Section */}
         <div className="flex justify-between bg-white text-gray-700 border border-gray-200 p-6 rounded-lg font-bold text-xl mt-8 shadow-lg">
           <span>Total Amount to Pay</span>
-          <span>$540.00</span>
+          <span>${totalAmountToPay.toFixed(2)}</span>
         </div>
 
         {/* Payment Button */}
         <div className="flex justify-center mt-8">
-          <Link
-            to={{
-              pathname: '/PaymentGateway',
-              state: { amount: totalAmountToPay },
-            }}
+          <button
+            className="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out focus:ring-4 focus:ring-green-300"
+            onClick={handlePayment}
           >
-            <button className="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out focus:ring-4 focus:ring-green-300">
-              Process Payment
-            </button>
-          </Link>
+            Process Payment
+          </button>
         </div>
       </div>
     </div>
