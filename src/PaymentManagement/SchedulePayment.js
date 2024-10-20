@@ -1,51 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-// Factory function for calculating payment based on device type
-const PaymentCalculationFactory = (deviceType, spaceLeft, capacity) => {
-  const usedCapacity = capacity - spaceLeft;
-  const usagePercentage = (usedCapacity / capacity) * 100;
-
-  let baseAmount = (usagePercentage / 10) * 10; // Example calculation: modify as needed
-  let discountAmount = 0;
-
-  if (deviceType === 'Paper' || deviceType === 'Glass') {
-    discountAmount = baseAmount * 0.2; // 20% discount
-    baseAmount *= 0.8; // Apply discount (80% of original amount)
-  }
-
-  return {
-    usedCapacity,
-    usagePercentage: usagePercentage.toFixed(2),
-    baseAmount: (baseAmount + discountAmount).toFixed(2),
-    discountAmount: discountAmount.toFixed(2),
-    finalAmount: baseAmount.toFixed(2),
-  };
-};
-
-// Payment Strategy for handling different payment methods
-const cardPaymentStrategy = (amount, userId, navigate) => {
-  navigate('/PaymentGateway', { state: { amount: amount, userId: userId } });
-};
-
-const walletPaymentStrategy = (amount, userId, navigate) => {
-  console.log(`Processing wallet payment for userId: ${userId}, amount: $${amount}`);
-  // Show toast message for wallet payment confirmation
-  toast.success(`Wallet payment of $${amount} confirmed!`, { autoClose: 3000 });
-
-  // Redirect to the homepage after 3 seconds (delay for toast to show)
-  setTimeout(() => {
-    navigate('/Homepage');
-  }, 3000);
-};
-
-// PaymentStrategyContext: Executes the correct strategy (payment method)
-const PaymentStrategyContext = ({ strategy, amount, userId, navigate }) => {
-  return strategy(amount, userId, navigate);
-};
+import { ToastContainer } from 'react-toastify';
+import { calculatePayment, cardPaymentStrategy, walletPaymentStrategy, fetchDeviceData } from './PaymentService'; // Adjust the import path as necessary
 
 function SchedulePayment({ deviceId, userId }) {
   const [deviceData, setDeviceData] = useState(null);
@@ -56,17 +12,13 @@ function SchedulePayment({ deviceId, userId }) {
 
   // Fetch device data from API
   useEffect(() => {
-    const fetchDeviceData = async () => {
+    const loadDeviceData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/payments/viewSchedulePayment`, {
-          params: { deviceId: deviceId },
-        });
-
-        const data = response.data[0];
+        const data = await fetchDeviceData(deviceId);
         const { spaceLeft, capacity, deviceType } = data;
 
         // Calculate payment amount using factory
-        const calculation = PaymentCalculationFactory(deviceType, spaceLeft, capacity);
+        const calculation = calculatePayment(deviceType, spaceLeft, capacity);
 
         setDeviceData(data);
         setAmountToPay(calculation.finalAmount);
@@ -76,13 +28,13 @@ function SchedulePayment({ deviceId, userId }) {
       }
     };
 
-    fetchDeviceData();
+    loadDeviceData();
   }, [deviceId]);
 
   const handlePayment = (paymentMethod) => {
     // Switch between payment methods
     const strategy = paymentMethod === 'card' ? cardPaymentStrategy : walletPaymentStrategy;
-    PaymentStrategyContext({ strategy, amount: amountToPay, userId, navigate });
+    strategy(amountToPay, userId, navigate);
   };
 
   return (
