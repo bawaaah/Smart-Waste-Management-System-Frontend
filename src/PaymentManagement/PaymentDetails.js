@@ -1,17 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import VerticalNav from '../components/Navi';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-function PaymentDetails({ amount }) {
-  const [totalAmountToPay, setTotal] = useState(0);
+function PaymentDetails({ userID }) {
+  const [cashRewards, setCashRewards] = useState([]);
+  const [previousPayments, setPreviousPayments] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setTotal(amount);
-  }, [amount]);
+    const fetchPaymentDetails = async () => {
+      console.log(`Fetching payment details for userID: ${userID}`); // Logging userID
 
-  const handlePayment = () => {
-    navigate('/PaymentGateway', { state: { amount: totalAmountToPay } });
+      try {
+        // Fetching payment details for the specific userID
+        const response = await axios.get(`http://localhost:3000/api/payments/payment-details/${userID}`);
+        const data = response.data;
+
+        console.log('Payment details response:', data); // Check the structure of the response
+
+        // Assuming data is structured as you provided
+        setCashRewards(data.cashRewards || []); // Set cash rewards if available
+        setPreviousPayments(data.previousPayments || []); // Set previous payments if available
+      } catch (error) {
+        console.error('Error fetching payment details:', error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchPaymentDetails();
+  }, [userID]);
+
+  const calculateTotalCashRewards = () => {
+    return cashRewards.reduce((total, reward) => total + reward, 0); // Assuming cash rewards are numbers
   };
 
   return (
@@ -29,18 +49,16 @@ function PaymentDetails({ amount }) {
           <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Cash Rewards</h2>
             <div className="space-y-4 text-gray-600">
-              <div className="flex justify-between text-lg">
-                <span>Reusable Waste Products</span>
-                <span>$120.00</span>
-              </div>
-              <div className="flex justify-between text-lg">
-                <span>Recyclable Waste Products</span>
-                <span>$85.00</span>
-              </div>
+              {cashRewards.map((reward, index) => (
+                <div className="flex justify-between text-lg" key={index}>
+                  <span>Cash Reward {index + 1}</span>
+                  <span>${(reward).toFixed(2)}</span>
+                </div>
+              ))}
             </div>
             <div className="flex justify-between border-t border-gray-300 pt-4 mt-4 text-lg font-bold text-gray-700">
               <span>Total Cash Rewards</span>
-              <span>$205.00</span>
+              <span>${calculateTotalCashRewards().toFixed(2)}</span>
             </div>
           </div>
 
@@ -48,51 +66,14 @@ function PaymentDetails({ amount }) {
           <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Previous Payments</h2>
             <div className="space-y-4 text-gray-600">
-              <div className="flex justify-between text-lg">
-                <span>Payment of Sep 2023</span>
-                <span>$150.00</span>
-              </div>
-              <div className="flex justify-between text-lg">
-                <span>Payment of Aug 2023</span>
-                <span>$135.00</span>
-              </div>
-            </div>
-            <div className="flex justify-between border-t border-gray-300 pt-4 mt-4 text-lg font-bold text-gray-700">
-              <span>Total Previous Payments</span>
-              <span>$285.00</span>
+              {previousPayments.map((payment, index) => (
+                <div className="flex justify-between text-lg" key={index}>
+                  <span>{new Date(payment.createdAt).toLocaleDateString()}</span> {/* Format the date */}
+                  <span>${payment.amount.toFixed(2)}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-
-        {/* Service Payment Section */}
-        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-lg mt-8 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Service Payment</h2>
-          <div className="space-y-4 text-gray-600">
-            <div className="flex justify-between text-lg">
-              <span>Service Payment (Oct 10, 2023)</span>
-              <span>$50.00</span>
-            </div>
-          </div>
-          <div className="flex justify-between border-t border-gray-300 pt-4 mt-4 text-lg font-bold text-gray-700">
-            <span>Total Service Payment</span>
-            <span>$50.00</span>
-          </div>
-        </div>
-
-        {/* Total Section */}
-        <div className="flex justify-between bg-white text-gray-700 border border-gray-200 p-6 rounded-lg font-bold text-xl mt-8 shadow-lg">
-          <span>Total Amount to Pay</span>
-          <span>${totalAmountToPay.toFixed(2)}</span>
-        </div>
-
-        {/* Payment Button */}
-        <div className="flex justify-center mt-8">
-          <button
-            className="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out focus:ring-4 focus:ring-green-300"
-            onClick={handlePayment}
-          >
-            Process Payment
-          </button>
         </div>
       </div>
     </div>

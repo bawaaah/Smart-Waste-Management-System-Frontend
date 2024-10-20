@@ -15,7 +15,7 @@ function App() {
           <Route path="/" element={<Home/>}></Route>
 
           {/* Payment */}
-          <Route path="/PaymentDetails" element={<PaymentDetails amount={300}/>}></Route>
+          <Route path="/PaymentDetails" element={<PaymentDetails userID={'670fb1c9283b226b21a52da0'}/>}></Route>
           <Route path="/PaymentGateway" element={<PaymentGateway/>}></Route>
           <Route path="/SchedulePayment" element={<SchedulePayment deviceId={'PAP-1728988754534'} userId={'670fb1c9283b226b21a52da0'}/>}></Route>
           
