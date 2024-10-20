@@ -5,8 +5,8 @@ import bullkwaste from "./images/bulkwaste.jpg";
 import ewaste from "./images/electronicwaste.jpg";
 import medicalwaste from "./images/medicalwaste.jpg";
 import organicwaste from "./images/organic.jpg";
-import { toast, ToastContainer } from "react-toastify"; // Import toast functions
-import "react-toastify/dist/ReactToastify.css"; // Import toast styles
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = ({ userId }) => {
   const [collections, setCollections] = useState([]);
@@ -39,15 +39,12 @@ const Dashboard = ({ userId }) => {
       });
       setCollections(collections.filter((c) => c._id !== id));
 
-      // Success Toast Message
       toast.success("Collection deleted successfully!", {
         position: "top-center",
         autoClose: 3000,
       });
     } catch (err) {
       console.error(err);
-
-      // Error Toast Message
       toast.error("Failed to delete collection!", {
         position: "top-center",
         autoClose: 3000,
@@ -68,18 +65,16 @@ const Dashboard = ({ userId }) => {
         Your Scheduled Collections
       </h1>
 
-      {/* Grid layout for cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {collections.map((collection) => (
           <div
             key={collection._id}
             className={`rounded-lg shadow-lg overflow-hidden cursor-pointer transition transform hover:scale-105 ${
-              collection.isCollected ? "bg-green-100" : "bg-gray-100" // Changed background for not collected
+              collection.isCollected ? "bg-green-100" : "bg-gray-100"
             }`}
-            onClick={() => navigate(`/collection/${collection._id}`)} // Navigate to details on card click
+            onClick={() => navigate(`/collection/${collection._id}`)}
           >
             <div className="flex flex-row items-center">
-              {/* Image on the left side */}
               <div className="w-1/3 h-24 md:h-32 lg:h-36">
                 <img
                   src={wasteTypeImages[collection.wasteType]}
@@ -88,7 +83,6 @@ const Dashboard = ({ userId }) => {
                 />
               </div>
 
-              {/* Collection Details on the right side */}
               <div className="w-2/3 p-4">
                 <p className="text-sm font-semibold">
                   Date: {new Date(collection.date).toLocaleDateString()}
@@ -110,11 +104,10 @@ const Dashboard = ({ userId }) => {
                 </p>
               </div>
 
-              {/* Edit and Delete Buttons */}
               <div className="flex flex-col justify-center space-y-6 p-4">
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent card click when clicking edit
+                    e.stopPropagation();
                     navigate(`/edit/${collection._id}`);
                   }}
                   className="bg-blue-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-blue-600 transition duration-300"
@@ -123,7 +116,7 @@ const Dashboard = ({ userId }) => {
                 </button>
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent card click when clicking delete
+                    e.stopPropagation();
                     handleDelete(collection._id);
                   }}
                   className="bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600 transition duration-300"
@@ -136,7 +129,6 @@ const Dashboard = ({ userId }) => {
         ))}
       </div>
 
-      {/* Schedule New Collection Button */}
       <div className="flex justify-center mt-8">
         <button
           onClick={() => navigate("/schedule")}
@@ -146,7 +138,6 @@ const Dashboard = ({ userId }) => {
         </button>
       </div>
 
-      {/* Toast Notifications */}
       <ToastContainer />
     </div>
   );

@@ -26,7 +26,7 @@ const CollectionDetails = () => {
         );
         setCollection(response.data);
         if (response.data.location) {
-          fetchAddress(response.data.location.lat, response.data.location.lng); // Fetch address from lat/lng
+          fetchAddress(response.data.location.lat, response.data.location.lng);
         }
       } catch (err) {
         console.error("Error fetching collection:", err);
@@ -58,6 +58,17 @@ const CollectionDetails = () => {
     "Medical Waste": medicalwaste,
   };
 
+  // Helper function to format date in word format
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   if (!collection) return <div className="text-center">Loading...</div>;
 
   return (
@@ -65,7 +76,7 @@ const CollectionDetails = () => {
       <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md space-y-8">
         {/* Date */}
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
-          Collection Details - {new Date(collection.date).toLocaleDateString()}
+          {formatDate(collection.date)}
         </h1>
 
         {/* Waste Type Card */}
@@ -80,7 +91,7 @@ const CollectionDetails = () => {
             <img
               src={wasteTypeImages[collection.wasteType]}
               alt={collection.wasteType}
-              className="object-cover w-full h-full rounded-lg"
+              className="object-cover w-full h-32 rounded-lg"
             />
           </div>
         </div>

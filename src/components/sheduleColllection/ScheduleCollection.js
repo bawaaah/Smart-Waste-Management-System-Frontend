@@ -45,20 +45,37 @@ const ScheduleCollection = ({ userId }) => {
     };
 
     try {
+      // Attempt to schedule the collection
       await axios.post("http://localhost:5000/api/collections", collection, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
+
+      // Show success toast and wait a bit before navigating to dashboard
       toast.success("Collection scheduled successfully!", {
         position: "top-center",
-        autoClose: 5000,
+        autoClose: 3000,
       });
-      navigate("/dashboard");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000); // Adjust delay if needed
     } catch (err) {
       console.error("Error scheduling collection:", err);
-      toast.error("Failed to schedule collection. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
+
+      // If there's an error, display it on the same page
+      if (err.response && err.response.data && err.response.data.error) {
+        // Show the error message from the backend
+        toast.error(`Error: ${err.response.data.error}`, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      } else {
+        // General error message
+        toast.error("Failed to schedule collection. Please try again.", {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      }
     }
   };
 
@@ -179,6 +196,7 @@ const ScheduleCollection = ({ userId }) => {
               className="w-full p-3 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 bg-gray-100"
             />
           </div>
+
           <div>
             <label className="text-lg font-semibold text-gray-700">
               Preferred Time:
