@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import bullkwaste from "./images/bulkwaste.jpg";
-import ewaste from "./images/electronicwaste.jpg";
-import medicalwaste from "./images/medicalwaste.jpg";
-import organicwaste from "./images/organic.jpg";
+import { fetchCollections, fetchAddress } from "./collectionService";
+import { wasteTypeFactory } from "./WasteTypeFactory";
+import { toast } from "react-toastify";
 
 const CollectionDetails = () => {
   const { id } = useParams();
@@ -16,49 +14,30 @@ const CollectionDetails = () => {
   useEffect(() => {
     const fetchCollection = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/collections/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setCollection(response.data);
-        if (response.data.location) {
-          fetchAddress(response.data.location.lat, response.data.location.lng);
+        const token = localStorage.getItem("token");
+        const collections = await fetchCollections(token);
+        const currentCollection = collections.find((col) => col._id === id);
+
+        if (currentCollection) {
+          setCollection(currentCollection);
+          const addr = await fetchAddress(
+            currentCollection.location.lat,
+            currentCollection.location.lng
+          );
+          setAddress(addr);
+        } else {
+          toast.error("Collection not found.");
         }
       } catch (err) {
         console.error("Error fetching collection:", err);
+        toast.error("Failed to fetch collection details.");
       }
     };
 
     fetchCollection();
   }, [id]);
 
-  // Fetch address using reverse geocoding API (Google Maps API)
-  const fetchAddress = async (lat, lng) => {
-    try {
-      const apiKey = "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM";
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
-      );
-      if (response.data.results.length > 0) {
-        setAddress(response.data.results[0].formatted_address); // Set the formatted address
-      }
-    } catch (err) {
-      console.error("Error fetching address:", err);
-    }
-  };
-
-  const wasteTypeImages = {
-    "Electronic Waste": ewaste,
-    "Bulky Waste": bullkwaste,
-    "Organic Waste": organicwaste,
-    "Medical Waste": medicalwaste,
-  };
-
-  // Helper function to format date in word format
+  // Format the date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -70,6 +49,8 @@ const CollectionDetails = () => {
   };
 
   if (!collection) return <div className="text-center">Loading...</div>;
+
+  const wasteType = wasteTypeFactory(collection.wasteType);
 
   return (
     <div className="min-h-screen bg-green-50 flex justify-center items-center py-10">
@@ -89,7 +70,7 @@ const CollectionDetails = () => {
           </div>
           <div className="w-1/3">
             <img
-              src={wasteTypeImages[collection.wasteType]}
+              src={wasteType.img}
               alt={collection.wasteType}
               className="object-cover w-full h-32 rounded-lg"
             />

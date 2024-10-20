@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import GoogleMapReact from "google-map-react";
 import { toast } from "react-toastify";
-import bullkwaste from "./images/bulkwaste.jpg";
-import ewaste from "./images/electronicwaste.jpg";
-import medicalwaste from "./images/medicalwaste.jpg";
-import organicwaste from "./images/organic.jpg";
+import GoogleMapReact from "google-map-react";
+import {
+  fetchCollections,
+  scheduleCollection,
+  fetchAddress as getAddress,
+} from "./collectionService";
+import { wasteTypeFactory } from "./WasteTypeFactory";
 import markerIcon from "./images/marker.png";
 
 const Marker = ({ icon }) => {
@@ -36,20 +37,19 @@ const EditCollection = () => {
   useEffect(() => {
     const fetchCollection = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/collections/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+        const collections = await fetchCollections(
+          localStorage.getItem("token")
         );
-        setCollection(response.data);
-        setLocation(response.data.location);
-        setWasteType(response.data.wasteType);
-        setDetails(response.data.details);
-        setDate(response.data.date.substring(0, 10));
-        setTime(response.data.time);
+        const foundCollection = collections.find((item) => item._id === id);
+
+        if (foundCollection) {
+          setCollection(foundCollection);
+          setLocation(foundCollection.location);
+          setWasteType(foundCollection.wasteType);
+          setDetails(foundCollection.details);
+          setDate(foundCollection.date.substring(0, 10));
+          setTime(foundCollection.time);
+        }
       } catch (err) {
         console.error("Error fetching collection:", err);
       }
@@ -59,20 +59,8 @@ const EditCollection = () => {
   }, [id]);
 
   const fetchAddress = async (lat, lng) => {
-    try {
-      const apiKey = "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM";
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
-      );
-      if (response.data.results.length > 0) {
-        setAddress(response.data.results[0].formatted_address);
-      } else {
-        setAddress("Address not found");
-      }
-    } catch (err) {
-      console.error("Error fetching address:", err);
-      setAddress("Error fetching address");
-    }
+    const address = await getAddress(lat, lng);
+    setAddress(address);
   };
 
   const handleSubmit = async (e) => {
@@ -80,34 +68,14 @@ const EditCollection = () => {
     const updatedCollection = { location, wasteType, details, date, time };
 
     try {
-      await axios.put(
-        `http://localhost:5000/api/collections/${id}`,
-        updatedCollection,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      await scheduleCollection(updatedCollection, id);
       toast.success("Collection updated successfully!", {
         position: "top-center",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
       navigate(`/dashboard`);
     } catch (err) {
       console.error("Error updating collection:", err);
-      toast.error("Failed to update collection. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
     }
   };
 
@@ -159,28 +127,31 @@ const EditCollection = () => {
           </label>
           <div className="grid grid-cols-4 gap-4">
             {[
-              { type: "Electronic Waste", img: ewaste },
-              { type: "Bulky Waste", img: bullkwaste },
-              { type: "Organic Waste", img: organicwaste },
-              { type: "Medical Waste", img: medicalwaste },
-            ].map(({ type, img }) => (
-              <div
-                key={type}
-                className={`p-4 border rounded-lg flex items-center space-x-4 cursor-pointer ${
-                  wasteType === type
-                    ? "border-green-500 bg-green-100"
-                    : "border-gray-300"
-                }`}
-                onClick={() => setWasteType(type)}
-              >
-                <img
-                  src={img}
-                  alt={type}
-                  className="w-16 h-16 object-cover rounded-lg"
-                />
-                <span className="text-lg font-medium">{type}</span>
-              </div>
-            ))}
+              "Electronic Waste",
+              "Bulky Waste",
+              "Organic Waste",
+              "Medical Waste",
+            ].map((type) => {
+              const { img } = wasteTypeFactory(type);
+              return (
+                <div
+                  key={type}
+                  className={`p-4 border rounded-lg flex items-center space-x-4 cursor-pointer ${
+                    wasteType === type
+                      ? "border-green-500 bg-green-100"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setWasteType(type)}
+                >
+                  <img
+                    src={img}
+                    alt={type}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <span className="text-lg font-medium">{type}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

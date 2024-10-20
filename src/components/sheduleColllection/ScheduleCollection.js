@@ -1,12 +1,8 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import GoogleMapReact from "google-map-react";
-import { toast } from "react-toastify";
-import bullkwaste from "./images/bulkwaste.jpg";
-import ewaste from "./images/electronicwaste.jpg";
-import medicalwaste from "./images/medicalwaste.jpg";
-import organicwaste from "./images/organic.jpg";
+import { scheduleCollection, fetchAddress } from "./collectionService"; // Centralized API logic
+import { wasteTypeFactory } from "./WasteTypeFactory"; // Use Factory for waste types
 import markerIcon from "./images/marker.png";
 
 const Marker = ({ icon }) => {
@@ -45,61 +41,17 @@ const ScheduleCollection = ({ userId }) => {
     };
 
     try {
-      // Attempt to schedule the collection
-      await axios.post("http://localhost:5000/api/collections", collection, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-
-      // Show success toast and wait a bit before navigating to dashboard
-      toast.success("Collection scheduled successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-      });
-
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2000); // Adjust delay if needed
+      await scheduleCollection(collection); // Use service to schedule collection
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
-      console.error("Error scheduling collection:", err);
-
-      // If there's an error, display it on the same page
-      if (err.response && err.response.data && err.response.data.error) {
-        // Show the error message from the backend
-        toast.error(`Error: ${err.response.data.error}`, {
-          position: "top-center",
-          autoClose: 5000,
-        });
-      } else {
-        // General error message
-        toast.error("Failed to schedule collection. Please try again.", {
-          position: "top-center",
-          autoClose: 5000,
-        });
-      }
+      // Error is already handled in the service layer
     }
   };
 
   const handleMapClick = async ({ lat, lng }) => {
     setLocation({ lat, lng });
-    fetchAddress(lat, lng);
-  };
-
-  // Fetch address using reverse geocoding API (Google Maps API)
-  const fetchAddress = async (lat, lng) => {
-    try {
-      const apiKey = "AIzaSyAlr9ejliXP037xHQtnJ2zscbPGxczkUrM";
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
-      );
-      if (response.data.results.length > 0) {
-        setAddress(response.data.results[0].formatted_address);
-      } else {
-        setAddress("Address not found");
-      }
-    } catch (err) {
-      console.error("Error fetching address:", err);
-      setAddress("Error fetching address");
-    }
+    const fetchedAddress = await fetchAddress(lat, lng); // Fetch the address
+    setAddress(fetchedAddress);
   };
 
   return (
@@ -143,28 +95,31 @@ const ScheduleCollection = ({ userId }) => {
           </label>
           <div className="grid grid-cols-4 gap-4">
             {[
-              { type: "Electronic Waste", img: ewaste },
-              { type: "Bulky Waste", img: bullkwaste },
-              { type: "Organic Waste", img: organicwaste },
-              { type: "Medical Waste", img: medicalwaste },
-            ].map(({ type, img }) => (
-              <div
-                key={type}
-                className={`p-4 border rounded-lg flex items-center space-x-4 cursor-pointer ${
-                  wasteType === type
-                    ? "border-green-500 bg-green-100"
-                    : "border-gray-300"
-                }`}
-                onClick={() => setWasteType(type)}
-              >
-                <img
-                  src={img}
-                  alt={type}
-                  className="w-16 h-16 object-cover rounded-lg"
-                />
-                <span className="text-lg font-medium">{type}</span>
-              </div>
-            ))}
+              "Electronic Waste",
+              "Bulky Waste",
+              "Organic Waste",
+              "Medical Waste",
+            ].map((type) => {
+              const { img } = wasteTypeFactory(type); // Use Factory Pattern
+              return (
+                <div
+                  key={type}
+                  className={`p-4 border rounded-lg flex items-center space-x-4 cursor-pointer ${
+                    wasteType === type
+                      ? "border-green-500 bg-green-100"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setWasteType(type)}
+                >
+                  <img
+                    src={img}
+                    alt={type}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <span className="text-lg font-medium">{type}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
