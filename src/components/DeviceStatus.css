@@ -1,0 +1,19 @@
+.device-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    transition: box-shadow 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.device-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.qr-code {
+    transition: transform 0.3s ease-in-out; /* Smooth transition for scaling */
+}
+
+.qr-code:hover {
+    transform: scale(1.25); /* Scale to 125% on hover */
+}
