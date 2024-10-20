@@ -31,7 +31,7 @@ const PaymentGateway = () => {
   };
 
   const handleBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-2); // Go back to the previous page
   };
 
   const CheckoutForm = () => {
