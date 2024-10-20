@@ -35,12 +35,12 @@ function Home() {
 
       {/* Main Area */}
       <div className='flex-1 flex flex-col p-8'> {/* Flex column to align content vertically */}
-        <h1 className="text-4xl font-bold text-green-700 mb-6 text-center">Welcome to WasteWise Dashboard</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center">Welcome to WasteWise Dashboard</h1>
 
         {/* Highlighted Stats */}
         <div className="grid grid-cols-3 gap-6 mb-8 flex-grow"> {/* Allow the grid to grow and take available space */}
           <div className="bg-green-100 p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow duration-300">
-            <h2 className="text-3xl font-semibold text-green-800">Total Waste</h2>
+            <h2 className="text-3xl font-semibold text-green-700">Total Waste</h2>
             <p className="text-2xl text-gray-700">300 KG</p>
           </div>
           <div className="bg-green-100 p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow duration-300">
