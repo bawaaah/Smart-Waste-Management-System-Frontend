@@ -12,6 +12,10 @@ import EditCollection from "./components/sheduleColllection/EditCollection";
 import Login from "./components/Login/Login"; // Ensure this import is correct
 import Signup from "./components/Login/Signup"; // Ensure this import is correct
 
+import PaymentDetails from "./PaymentManagement/PaymentDetails";
+import PaymentGateway from "./PaymentManagement/PaymentGateway";
+import SchedulePayment from "./PaymentManagement/SchedulePayment";
+
 function App() {
   const [token, setToken] = useState(null);
   const [username, setUsername] = useState("");
@@ -37,7 +41,7 @@ function App() {
         {/* Change is here: ensure you're using Router */}
         <Routes>
           <Route
-            path="/"
+            path="/login"
             element={
               <Login
                 setToken={handleLoginSuccess}
@@ -64,6 +68,22 @@ function App() {
             path="/edit/:id"
             element={<EditCollection username={username} userId={userId} />}
           />
+
+          {/* Payment */}
+          <Route
+            path="/PaymentDetails"
+            element={<PaymentDetails amount={300} />}
+          ></Route>
+          <Route path="/PaymentGateway" element={<PaymentGateway />}></Route>
+          <Route
+            path="/SchedulePayment"
+            element={
+              <SchedulePayment
+                deviceId={"PAP-1728988754534"}
+                userId={"670fb1c9283b226b21a52da0"}
+              />
+            }
+          ></Route>
         </Routes>
       </Router>
       <ToastContainer position="top-right" autoClose={5000} />
