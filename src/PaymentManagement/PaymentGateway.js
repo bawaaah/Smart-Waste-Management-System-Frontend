@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 
 // Load your Stripe publishable key
 const stripePromise = loadStripe('pk_test_51QBBKGAOG92iZv0dAR3XuiGpwp9x0MOmUmPq7Zu7SvqLzXlLg8g0s8PTWIyZOaxINjZDeDHSU8wTOM3ygSU6Sxdu00yMRWFqNi'); // Replace with your actual publishable key
@@ -20,6 +19,7 @@ const PaymentRequestFactory = (amount, userId, paymentMethodId, billingDetails) 
 
 const PaymentGateway = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Use navigate to handle "Back" button navigation
   const { amount, userId } = location.state || { amount: 0 }; 
   const [paymentError, setPaymentError] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(null);
@@ -28,6 +28,10 @@ const PaymentGateway = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleBack = () => {
+    navigate(-1); // Go back to the previous page
   };
 
   const CheckoutForm = () => {
@@ -118,6 +122,10 @@ const PaymentGateway = () => {
     return (
       <div className="bg-white shadow-lg border border-gray-200 p-8 rounded-lg max-w-3xl mx-auto mt-10">
         <h2 className="text-3xl font-semibold text-gray-800 text-center mb-6">Payment Gateway</h2>
+        
+        {/* Back Button */}
+        
+
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             {/* Name Input */}
@@ -184,6 +192,13 @@ const PaymentGateway = () => {
           >
             Pay ${amount}
           </button>
+          <button
+          type="button"
+          onClick={handleBack}
+          className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-2 mt-2 hover:bg-gray-600 transition-all duration-300 ease-in-out"
+        >
+          Back
+        </button>
           {paymentError && <div className="text-red-500 mt-4">{paymentError}</div>}
           {paymentSuccess && <div className="text-green-500 mt-4">{paymentSuccess}</div>}
         </form>

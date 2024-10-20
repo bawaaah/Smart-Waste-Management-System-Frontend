@@ -48,6 +48,11 @@ const ScheduleCollection = ({ userId }) => {
     }
   };
 
+  const handlePay = () => {
+    // Redirect to the payment page or trigger payment flow
+    navigate("/SchedulePayment");
+  };
+
   const handleMapClick = async ({ lat, lng }) => {
     setLocation({ lat, lng });
     const fetchedAddress = await fetchAddress(lat, lng); // Fetch the address
@@ -166,13 +171,20 @@ const ScheduleCollection = ({ userId }) => {
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-center">
+        {/* Submit and Pay Buttons */}
+        <div className="flex justify-center space-x-4">
           <button
             type="submit"
             className="px-12 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition duration-300 w-full md:w-1/3"
           >
             Schedule
+          </button>
+          <button
+            type="button"
+            onClick={handlePay}
+            className="px-12 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition duration-300 w-full md:w-1/3"
+          >
+            Pay
           </button>
         </div>
       </form>

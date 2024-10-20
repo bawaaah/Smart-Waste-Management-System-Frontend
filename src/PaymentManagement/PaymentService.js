@@ -37,7 +37,7 @@ export const walletPaymentStrategy = (amount, userId, navigate) => {
 
   // Redirect to the homepage after 3 seconds (delay for toast to show)
   setTimeout(() => {
-    navigate('/Homepage');
+    navigate('/schedule');
   }, 3000);
 };
 
