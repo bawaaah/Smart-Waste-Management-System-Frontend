@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react'; // Importing QR code component
 import './DeviceStatus.css'; // Importing CSS file for styles
+import Header from './Home/Header'; // Import Header
 
 const DeviceStatus = ({ userId }) => {
     const [devices, setDevices] = useState([]);
@@ -67,6 +68,8 @@ const DeviceStatus = ({ userId }) => {
     const categoryCount = Object.keys(groupedDevices).length;
 
     return (
+        <div>
+
         <div className="container mx-auto p-4">
             <h2 className="text-2xl font-bold mb-4">Device Status</h2>
             {error && <p className="text-red-500">{error}</p>}
@@ -126,6 +129,7 @@ const DeviceStatus = ({ userId }) => {
                     </div>
                 ))}
             </div>
+        </div>
         </div>
     );
 };

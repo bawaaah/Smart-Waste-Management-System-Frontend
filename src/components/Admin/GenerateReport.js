@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { generateReport } from '../../api/report';
 
 const GenerateReport = () => {
     const [startDate, setStartDate] = useState('');
@@ -9,7 +9,7 @@ const GenerateReport = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [pdfUrl, setPdfUrl] = useState(null); // State for PDF preview URL
-    
+
     // Handle form submission to generate the report
     const handleGenerateReport = async (e) => {
         e.preventDefault();
@@ -18,20 +18,15 @@ const GenerateReport = () => {
         setPdfUrl(null); // Clear previous PDF URL
 
         try {
-            // Send request to the server to generate the report
-            const response = await axios.post('http://localhost:3000/api/report/generate', {
-                startDate,
-                endDate,
-                deviceType,
-                reportFormat,
-            }, { responseType: 'blob' });
+            // Send request to generate the report
+            const responseData = await generateReport(startDate, endDate, deviceType, reportFormat);
 
             if (reportFormat === 'PDF') {
                 // Create a preview URL for the PDF
-                const fileUrl = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                const fileUrl = URL.createObjectURL(new Blob([responseData], { type: 'application/pdf' }));
                 setPdfUrl(fileUrl); // Set the preview URL
             } else if (reportFormat === 'CSV') {
-                const blob = new Blob([response.data], { type: 'text/csv' });
+                const blob = new Blob([responseData], { type: 'text/csv' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = 'report.csv';

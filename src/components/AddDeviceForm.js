@@ -1,6 +1,8 @@
+// src/components/AddDeviceForm.js
+
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { addDevice } from '../api/device'; // Import the addDevice function
 
 const AddDeviceForm = () => {
     const [status, setStatus] = useState('Active');
@@ -15,15 +17,15 @@ const AddDeviceForm = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:3000/api/device/add', {
+            const response = await addDevice({
                 status,
                 spaceLeft,
                 deviceType,
                 capacity,
-                userId
+                userId,
             });
             setMessage('Device added successfully!');
-            setQrCode(response.data.qrCode); // Set QR code state
+            setQrCode(response.qrCode); // Set QR code state
         } catch (error) {
             setMessage(`Error: ${error.response?.data.message || 'Failed to add device'}`);
         }

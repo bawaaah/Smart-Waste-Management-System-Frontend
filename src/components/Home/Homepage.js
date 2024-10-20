@@ -79,7 +79,7 @@ const Homepage = ({ userId }) => {
           <h3 className="text-2xl font-bold mb-2">Your Devices</h3>
           <p>Total Devices: <strong>{totalDevices}</strong></p>
           <p>Waste Levels Critical Devices: <strong>{criticalWasteLevels}</strong></p>
-          <Link to="/devices" className="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-md">View Devices</Link>
+          <Link to="/WasteMonitoringDashboard" className="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-md">View Devices</Link>
         </div>
       </section>
 
