@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^13.5.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
+    "axios-mock-adapter": "^2.1.0",
     "framer-motion": "^11.11.9",
     "google-map-react": "^2.2.1",
     "postcss": "^8.4.47",
@@ -55,5 +56,10 @@
     "@testing-library/react": "^16.0.1",
     "babel-jest": "^29.7.0",
     "jest": "^27.5.1"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^axios$": "axios/dist/node/axios.cjs"
+    }
   }
 }
