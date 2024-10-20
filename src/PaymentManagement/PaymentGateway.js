@@ -4,11 +4,8 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
-jest.mock('axios');
 
-const mockResponse = { data: { clientSecret: 'secret' } };
 
-axios.post.mockResolvedValueOnce(mockResponse);
 
 // Load your Stripe publishable key
 const stripePromise = loadStripe('pk_test_51QBBKGAOG92iZv0dAR3XuiGpwp9x0MOmUmPq7Zu7SvqLzXlLg8g0s8PTWIyZOaxINjZDeDHSU8wTOM3ygSU6Sxdu00yMRWFqNi'); // Replace with your actual publishable key
